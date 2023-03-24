@@ -1,62 +1,113 @@
-fun main(args: Array<String>) {
-    println("Hello World!")
-
-    // Try adding program arguments via Run/Debug configuration.
-    // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
-    println("Program arguments: ${args.joinToString()}")
+fun main() {
+    println(solution2("ab123", "ab34z"))
 }
+
+fun solution2(s1: String, s2: String): Boolean {
+    val tokens1 = mutableListOf<String>()
+    val tokens2 = mutableListOf<String>()
+    var token = ""
+    for (i in s1.indices) {
+        if (s1[i] in '0'..'9') {
+            token += s1[i]
+            continue
+        }
+        if (token.isNotEmpty()) {
+            tokens1.add(token)
+            token = ""
+        }
+        tokens1.add(s1[i].toString())
+    }
+    if (token.isNotEmpty()) {
+        tokens1.add(token)
+        token = ""
+    }
+
+    for (i in s2.indices) {
+        if (s2[i] in '0'..'9') {
+            token += s2[i]
+            continue
+        }
+        if (token.isNotEmpty()) {
+            tokens2.add(token)
+            token = ""
+        }
+        tokens2.add(s2[i].toString())
+    }
+    if (token.isNotEmpty()) {
+        tokens2.add(token)
+    }
+
+
+}
+
 
 fun solution(s1: String, s2: String): Boolean {
-    val tokens1 = tokenize(s1)
-    val tokens2 = tokenize(s2)
-    val minLength = minOf(tokens1.size, tokens2.size)
-    for (i in 0 until minLength) {
-        val token1 = tokens1[i]
-        val token2 = tokens2[i]
-        if (token1 != token2) {
-            return compareTokens(token1, token2) < 0
+    val tokens1 = mutableListOf<String>()
+    val tokens2 = mutableListOf<String>()
+    var token = ""
+    for (i in s1.indices) {
+        if (s1[i] in '0'..'9') {
+            token += s1[i]
+            continue
+        }
+        if (token.isNotEmpty()) {
+            tokens1.add(token)
+            token = ""
+        }
+        tokens1.add(s1[i].toString())
+    }
+    if (token.isNotEmpty()) {
+        tokens1.add(token)
+        token = ""
+    }
+
+    for (i in s2.indices) {
+        if (s2[i] in '0'..'9') {
+            token += s2[i]
+            continue
+        }
+        if (token.isNotEmpty()) {
+            tokens2.add(token)
+            token = ""
+        }
+        tokens2.add(s2[i].toString())
+    }
+    if (token.isNotEmpty()) {
+        tokens2.add(token)
+    }
+
+    if (tokens1.size < tokens2.size) {
+        for (i in 0 until tokens1.size) {
+            if (!isNumeric(tokens1[i]) && !isNumeric(tokens2[i])
+                && tokens1[i].single().code > tokens2[i].single().code
+            ) {
+                return false
+            }
+
+            if (isNumeric(tokens1[i]) && isNumeric(tokens2[i]) && tokens1[i].toInt() > tokens2[i].toInt()) {
+                return true
+            }
+        }
+        return true
+    }
+    if (tokens1.size > tokens2.size)
+        return false
+
+    for (i in 0 until tokens1.size) {
+        if (isNumeric(tokens1[i]) && isNumeric(tokens2[i]) && tokens1[i].toInt() < tokens2[i].toInt()) {
+            return true
+        } else if (isNumeric(tokens1[i]) && !isNumeric(tokens2[i])) {
+            return true
+        } else if (!isNumeric(tokens1[i]) && !isNumeric(tokens2[i])
+            && tokens1[i].single().code < tokens2[i].single().code
+        ) {
+            return true
         }
     }
-    return tokens1.size < tokens2.size
+
+    return false
 }
 
-fun tokenize(s: String): List<Token> {
-    val tokens = mutableListOf<Token>()
-    var i = 0
-    while (i < s.length) {
-        val c = s[i]
-        if (c.isLetter()) {
-            var j = i + 1
-            while (j < s.length && s[j].isLetter()) {
-                j++
-            }
-            tokens.add(Token.Letter(s.substring(i, j)))
-            i = j
-        } else if (c.isDigit()) {
-            var j = i + 1
-            while (j < s.length && s[j].isDigit()) {
-                j++
-            }
-            tokens.add(Token.Number(s.substring(i, j)))
-            i = j
-        } else {
-            i++
-        }
-    }
-    return tokens
-}
-
-fun compareTokens(t1: Token, t2: Token): Int {
-    return when {
-        t1 is Token.Letter && t2 is Token.Letter -> t1.value.compareTo(t2.value)
-        t1 is Token.Number && t2 is Token.Number -> t1.value.toInt().compareTo(t2.value.toInt())
-        t1 is Token.Number -> -1
-        t2 is Token.Number -> 1
-        else -> 0
-    }
-}
-
-sealed class Token {
-    data class Letter(val value: String) : Token()
-    data class Number(val value: String) : Token()
+fun isNumeric(str: String): Boolean {
+    return str.toDoubleOrNull() != null
 }
